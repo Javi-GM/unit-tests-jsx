@@ -1,6 +1,10 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 
+function HelloWorld({ name }) {
+  return (<div>{`Hello, ${name}`}</div>)
+}
+
 describe("JSX Practice exercises", () => {
   describe("JSX basics", () => {
     /**
@@ -12,9 +16,7 @@ describe("JSX Practice exercises", () => {
     test("hello john doe", () => {
       const name = "John Doe";
 
-      const HelloWorld = () => null;
-
-      render(<HelloWorld />);
+      render(<HelloWorld name={name} />);
       expect(screen.getByText(/Hello, John Doe/)).toBeInTheDocument();
     });
 
@@ -27,7 +29,7 @@ describe("JSX Practice exercises", () => {
     test("profile image 1", () => {
       const imagePath = "https://placekitten.com/200/300";
 
-      const ProfileImage = () => null;
+      const ProfileImage = () => (<img src={imagePath} />);
 
       render(<ProfileImage />);
       expect(screen.getByRole("img")).toHaveAttribute("src", imagePath);
@@ -40,9 +42,9 @@ describe("JSX Practice exercises", () => {
     test("profile image 2", () => {
       const html = `<img src="https://placekitten.com/200/300" style="border: 1px solid blue;" />`;
 
-      const ProfileImage = () => null;
+      const ProfileImage = ({ html }) => (<div dangerouslySetInnerHTML={{ __html: html }} />)
 
-      render(<ProfileImage />);
+      render(<ProfileImage html={html} />);
       expect(screen.getByRole("img")).toHaveAttribute(
         "style",
         "border: 1px solid blue;"
@@ -62,9 +64,17 @@ describe("JSX Practice exercises", () => {
         image: "https://placekitten.com/200/300",
       };
 
-      const Avatar = () => null;
+      const Avatar = ({ character }) => {
+        return (
+          <figure>
+            <h3>{character.name}</h3>
+            <img src={character.image} alt={character.name} />
+          </figure>
+        );
+      };
 
-      render(<Avatar />);
+      render(<Avatar character={character} />);
+
       expect(screen.getByRole("heading")).toHaveTextContent(character.name);
       expect(screen.getByRole("img")).toHaveAccessibleName(character.name);
       expect(screen.getByRole("img")).toHaveAttribute("src", character.image);
@@ -80,11 +90,11 @@ describe("JSX Practice exercises", () => {
     test("format number", () => {
       const price = 12;
 
-      const ProductPrice = () => {
-        return <p>Price: {price}</p>;
+      const ProductPrice = ({ price }) => {
+        return <p>Price: {Number(price).toFixed(2)}</p>;
       };
 
-      render(<ProductPrice />);
+      render(<ProductPrice price={price} />);
       expect(screen.getByText(/Price: 12.00/)).toBeInTheDocument();
     });
 
@@ -97,14 +107,23 @@ describe("JSX Practice exercises", () => {
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat#using_options
      */
     test("format date - day of week", () => {
+      const weekDays = new Map([
+        [1, "Monday"],
+        [2, "Tuesday"],
+        [3, "Wednesday"],
+        [4, "Thursday"],
+        [5, "Friday"],
+        [6, "Saturday"],
+        [7, "Sunday"]
+      ]);
       // Date react was launched: May 29, 2013
       const reactLaunchDate = new Date("2013-05-29");
 
-      const HelloWorld = () => {
-        return <p>React was launched on {reactLaunchDate.toString()}</p>;
+      const HelloWorld = ({ date }) => {
+        return <p>React was launched on a {weekDays.get(date.getDay())}</p>;
       };
 
-      render(<HelloWorld />);
+      render(<HelloWorld date={reactLaunchDate} />);
       expect(
         screen.getByText(/React was launched on a Wednesday/)
       ).toBeInTheDocument();
@@ -128,7 +147,7 @@ describe("JSX Practice exercises", () => {
           </div>
   `;
 
-      const LearnReactSection = () => null;
+      const LearnReactSection = () => (<div dangerouslySetInnerHTML={{ __html: html }} />);
 
       render(<LearnReactSection />);
       expect(screen.getByRole("heading")).toHaveTextContent(/Learn React/);
